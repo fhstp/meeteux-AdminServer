@@ -30,6 +30,7 @@ export class WebSocket
                 const event: String = packet[0];
                 const token = socket.token;
 
+                /*
                 if(event.localeCompare('registerOD') !== 0)
                 {
                     jwt.verify(token, process.env.SECRET, (err, decoded) =>
@@ -49,6 +50,7 @@ export class WebSocket
                 else {
                     next();
                 }
+                */
             });
 
             socket.emit('news', { hello: 'world' });
@@ -71,6 +73,12 @@ export class WebSocket
                     socket.emit('registerODResult', result);
                 });
                 */
+            });
+
+            socket.on('getLocationData', () => {
+                this.locationController.getAllLocations().then( (locations) => {
+                    socket.emit('getLocationDataResult', locations);
+                });
             });
         });
     }
