@@ -1,8 +1,7 @@
 import * as IO from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import  { Connection } from '../database';
-import { OdController, LocationController } from "../controller";
-import {ExhibitController} from "../controller/exhibitController";
+import { LocationController } from "../controller";
 import {LOCATION_NOT_FOUND, Message} from "../messages";
 import {INVALID_TOKEN} from "../messages/authenticationTypes";
 
@@ -55,6 +54,7 @@ export class WebSocket
 
             socket.on('registerOD', (data) =>
             {
+                /*
                 this.odController.registerOD(data).then( (result) =>
                 {
                     const user = result.data.user;
@@ -69,6 +69,7 @@ export class WebSocket
 
                     socket.emit('registerODResult', result);
                 });
+                */
             });
         });
     }
