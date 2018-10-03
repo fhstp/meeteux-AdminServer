@@ -1,0 +1,38 @@
+{
+  "name": "meeteux-AdminServer",
+  "version": "0.1.0",
+  "description": "MEETeUX: Server for Admin Panel",
+  "main": "dir/index",
+  "types": "dir/index",
+  "scripts": {
+    "tsc": "tsc",
+    "start": "npm run build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fhstp/meeteux-AdminServer.git"
+  },
+  "keywords": [],
+  "author": "Niklas Thür",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fhstp/meeteux-AdminServer/issues"
+  },
+  "homepage": "https://github.com/fhstp/meeteux-AdminServer#readme",
+  "devDependencies": {
+    "@types/node": "^8.9.5",
+    "nodemon": "^1.18.3",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.7.2",
+    "typescript-eslint-parser": "^6.0.1"
+  },
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.15.4",
+    "jsonwebtoken": "^8.2.0",
+    "mysql2": "^1.5.2",
+    "sequelize": "^4.36.0",
+    "socket.io": "^2.1.1"
+  }
+}

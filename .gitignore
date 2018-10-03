@@ -1,0 +1,7 @@
+node_modules/
+.idea/
+.env
+src/ressources/
+dist/
+*/.DS_Store
+.DS_Store
