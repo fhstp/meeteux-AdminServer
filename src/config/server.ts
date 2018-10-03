@@ -15,7 +15,7 @@ export default class Server
 
     constructor()
     {
-        const cred = this.loadCredentials();
+        // const cred = this.loadCredentials();
 
         this.app = new Express();
         this.server = http.createServer(this.app);
@@ -31,6 +31,7 @@ export default class Server
         });
     }
 
+    /*
     private loadCredentials(): any
     {
         const cert = fs.readFileSync(process.env.CERT_PATH + '/fullchain.pem');
@@ -41,5 +42,6 @@ export default class Server
             cert: cert
         };
     }
+    */
 }
 
