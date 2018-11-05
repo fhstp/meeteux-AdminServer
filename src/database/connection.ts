@@ -13,6 +13,7 @@ export class Connection
     private _status: any;
     private _position: any;
     private _activity: any;
+    private _activityLog: any;
     private _neighbor:any;
     private _settings: any;
 
@@ -23,12 +24,15 @@ export class Connection
         this._sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
             host: 'localhost',
             dialect: 'mysql',
-            logging: true
+            operatorsAliases: { $and: Sequelize.Op.and },
+            logging: false
         });
+
         this.initDatabaseTables();
         this.initDatabaseRelations();
 
-        this._sequelize.sync().then( this._settings.findById(1).then(result => this._currentSettings = result));
+
+        this._sequelize.sync().then( this._settings.findByPk(1).then(result => this._currentSettings = result));
     }
 
     public static getInstance(): Connection
@@ -53,16 +57,20 @@ export class Connection
         this._location.hasMany(this._activity, {onDelete: 'cascade', foreignKey: {allowNull: false}});
         this._activity.belongsTo(this._location, {foreignKey: {allowNull: false}});
 
+        //ActivityLog to Activity Relation (1:n)
+        this._activity.hasMany(this._activityLog, {onDelete: 'cascade'});
+        this._activityLog.belongsTo(this._activity);
+
         //_location to _location relation (1:n)
         this._location.hasMany(this._location, {onDelete: 'cascade', foreignKey: {
-            name: 'parentId',
-            allowNull: true
+                name: 'parentId',
+                allowNull: true
             }
         });
         this._location.belongsTo(this._location, {foreignKey: {
-            name: 'parentId',
-            allowNull: true
-         }
+                name: 'parentId',
+                allowNull: true
+            }
         });
 
         //_user to _location relation (1:n)
@@ -104,8 +112,8 @@ export class Connection
         this._location.belongsTo(this._status, {foreignKey: {allowNull: false}});
 
         //_location to _position relation (1:n)
-        this._position.hasMany(this._location, {foreignKey: {allowNull: false}});
-        this._location.belongsTo(this._position, {foreignKey: {allowNull: false}});
+        this._position.hasMany(this._location, {foreignKey: {allowNull: true}});
+        this._location.belongsTo(this._position, {foreignKey: {allowNull: true}});
     }
 
     private initDatabaseTables():void
@@ -113,22 +121,30 @@ export class Connection
         this._settings = this._sequelize.define('setting', {
             guestNumber: {
                 type: Sequelize.INTEGER
+            },
+            wifiSSID: {
+                type: Sequelize.STRING
             }
         });
 
         this._user = this._sequelize.define('user', {
-            'id': {
+            id: {
                 primaryKey: true,
                 type: Sequelize.UUID,
                 defaultValue: Sequelize.UUIDV4,
             },
             name: {
                 type: Sequelize.STRING,
-                allowNull: false
+                allowNull: false,
+                unique: true
             },
             password: {
                 type: Sequelize.STRING,
                 allowNull: true
+            },
+            email: {
+                type: Sequelize.STRING,
+                unique: true
             },
             isGuest: {
                 type: Sequelize.BOOLEAN,
@@ -169,7 +185,7 @@ export class Connection
                 type: Sequelize.STRING,
                 allowNull: false
             }
-        })
+        });
 
         this._location = this._sequelize.define('location', {
             id: {
@@ -178,14 +194,14 @@ export class Connection
                 autoIncrement: false
             },
             contentURL: {
-               type: Sequelize.STRING
+                type: Sequelize.STRING
             },
             contentVersion: {
-               type: Sequelize.DOUBLE,
+                type: Sequelize.DOUBLE,
                 defaultValue: 1.0
             },
             ipAddress: {
-               type: Sequelize.STRING,
+                type: Sequelize.STRING,
                 allowNull: false
             },
             description: {
@@ -204,6 +220,10 @@ export class Connection
             isStartPoint: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
+                defaultValue: false
+            },
+            showInTimeline: {
+                type: Sequelize.BOOLEAN,
                 defaultValue: false
             }
         });
@@ -266,17 +286,21 @@ export class Connection
         });
 
         this._activity = this._sequelize.define('activity', {
-            timestamp: {
-                type: Sequelize.DATE,
-                allowNull: false
-            },
             liked: {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false
             },
-            dismissed: {
+            locked: {
                 type: Sequelize.BOOLEAN,
-                defaultValue: false
+                defaultValue: true
+            }
+        });
+
+        this._activityLog = this._sequelize.define('activityLog', {
+            timestamp: {
+                type: Sequelize.DATE,
+                allowNull: false,
+                defaultValue: Sequelize.NOW
             }
         });
     }
@@ -292,6 +316,10 @@ export class Connection
 
     get activity(): any {
         return this._activity;
+    }
+
+    get activityLog(): any {
+        return this._activityLog;
     }
 
     get user(): any {
@@ -332,5 +360,9 @@ export class Connection
 
     get sequelize(): any {
         return this._sequelize;
+    }
+
+    get settings(): any {
+        return this._settings;
     }
 }
