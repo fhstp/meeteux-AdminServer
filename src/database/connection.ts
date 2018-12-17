@@ -266,15 +266,7 @@ export class Connection
         });
 
         this._activity = this._sequelize.define('activity', {
-            timestamp: {
-                type: Sequelize.DATE,
-                allowNull: false
-            },
             liked: {
-                type: Sequelize.BOOLEAN,
-                defaultValue: false
-            },
-            dismissed: {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false
             }

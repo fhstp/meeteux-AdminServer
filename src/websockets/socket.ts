@@ -4,7 +4,6 @@ import  { Connection } from '../database';
 import { LocationController } from "../controller";
 import {LOCATION_NOT_FOUND, Message} from "../messages";
 import {INVALID_TOKEN} from "../messages/authenticationTypes";
-//victor
 
 export class WebSocket
 {
@@ -15,6 +14,7 @@ export class WebSocket
     constructor(server: any)
     {
         this.io = new IO(server);
+        server.port 
         this.locationController = new LocationController();
         this.database = Connection.getInstance();
 
@@ -53,9 +53,22 @@ export class WebSocket
                 */
             });
 
-            socket.emit('news', { hello: 'world' });
+            socket.emit('news', { text: 'AdminServer on' });
 
-            socket.on('registerOD', (data) =>
+            // Only sending when connecting, but that is not good
+            this.locationController.getAllLocations().then( (locations) => {
+                socket.emit('getLocationDataResult', locations);
+            });
+
+            this.locationController.getAllUsers().then( (users) => {
+                socket.emit('getUserDataResult', users);
+            });
+
+            this.locationController.getAllActivities().then( (activities) => {
+                socket.emit('getActivityDataResult', activities);
+            });
+
+           /* socket.on('registerOD', (data) =>
             {
                 /*
                 this.odController.registerOD(data).then( (result) =>
@@ -72,12 +85,20 @@ export class WebSocket
 
                     socket.emit('registerODResult', result);
                 });
-                */
+                *
+            });*/
+
+            // Not really listening to this:
+            socket.on('getLocationData', () => {
+                console.log('getLocationData');
+                this.locationController.getAllLocations().then( (locations) => {
+                    socket.emit('getLocationaDataResult', locations);
+                });
             });
 
-            socket.on('getLocationData', () => {
-                this.locationController.getAllLocations().then( (locations) => {
-                    socket.emit('getLocationDataResult', locations);
+            socket.on('getUserData', () => {
+                this.locationController.getAllUsers().then( (users) => {
+                    socket.emit('getUserDataResult', users);
                 });
             });
         });
