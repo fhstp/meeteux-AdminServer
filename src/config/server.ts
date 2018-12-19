@@ -15,20 +15,29 @@ export default class Server
 
     constructor()
     {
-        // const cred = this.loadCredentials();
-
         this.app = new Express();
-        this.server = http.createServer(this.app);
+        this.app.use(Express.static(process.env.NODE_PATH + '/assets/'));
+
+        this.app.get('/', function (req, res)
+        {
+            res.sendFile(process.env.NODE_PATH + '/assets/index.html');
+        });
+
+        // const cred = this.loadCredentials();
         // this.server = https.createServer(cred, this.app);
-        this.socket = new WebSocket(this.server);
+
+        this.app.use((req,res)=>{
+            res.type('text/plain');
+            res.status(505);
+            res.send('Error page');
+         });
+
+        this.server = http.createServer(this.app);
 
         console.log('Server runs on Port: ' + process.env.SERVER_PORT);
         this.server.listen(process.env.SERVER_PORT);
 
-        this.app.get('/', function (req, res)
-        {
-            // res.sendFile(process.env.NODE_PATH + '/assets/localIndex.html');
-        });
+        this.socket = new WebSocket(this.server);  
     }
 
     /*
