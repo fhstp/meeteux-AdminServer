@@ -27,35 +27,41 @@ export class LocationController
         }).catch(() => {
             return {data: null, message: new Message(LOCATION_NOT_FOUND,"Did not found locations!")};
         });
-    }
+    } 
 
-    public getAllUsers(): any
+    public resetLocations(tableid: any): any
     {
-        return this.database.user.findAll().then( users => {
-           return {data: users, message: new Message(SUCCESS_OK, "Found all users!")};
-        }).catch(() => {
-            return {data: null, message: new Message(LOCATION_NOT_FOUND,"Did not found users!")};
+        let table = 0;
+        let seats = 0;
+        return this.database.location.update({ currentSeat: 0, statusId: 3 },{ where: { id: tableid }})
+        .spread((affectedCount, affectedRows) => { table = affectedCount; })
+        .then( () => {
+            return this.database.location.update({ statusId: 3 },{ where: { parentId: tableid }})
+            .spread((affectedCount, affectedRows) => { seats = affectedCount; })
+            .then( () => {
+                let mesg = table + ' table(s) and ' + seats + ' seat(s) reseted successfully!';
+                return { data: null, message: new Message(SUCCESS_OK, mesg.toString()) };
+            }).catch(() => {
+                return { data: null, message: new Message(LOCATION_NOT_UPDATED, "Could not reset locations!")}
+            });            
         });
     }
 
-    public getAllActivities(): any
+    public resetAllLocations(): any
     {
-        return this.database.activity.findAll({
-            attributes: ['id','liked','createdAt','updatedAt','locationId'],
-            include: [{
-                model: this.database.location,
-                attributes: [['description', 'locationDesc']]
-            }, {
-                model: this.database.user,
-                attributes: [['name', 'userName']]
-            }]/*,
-            where: {
-                locationId: this.database.location.id
-            }*/
-        }).then( activities => {
-           return {data: activities, message: new Message(SUCCESS_OK, "Found all activities!")};
-        }).catch(() => {
-            return {data: null, message: new Message(LOCATION_NOT_FOUND,"Did not found activities!")};
+        let table = 0;
+        let seats = 0;
+        return this.database.location.update({ currentSeat: 0, statusId: 3 },{ where: { locationTypeId: 3 }})
+        .spread((affectedCount, affectedRows) => { table = affectedCount; })
+        .then( () => {
+            return this.database.location.update({ statusId: 3 },{ where: { locationTypeId: 2 }})
+            .spread((affectedCount, affectedRows) => { seats = affectedCount; })
+            .then( () => {
+                let mesg = table + ' table(s) and ' + seats + ' seat(s) reseted successfully!';
+                return { data: null, message: new Message(SUCCESS_OK, mesg) };
+            }).catch(() => {
+                return { data: null, message: new Message(LOCATION_NOT_UPDATED, "Could not reset locations!")}
+            });            
         });
     }
 }
